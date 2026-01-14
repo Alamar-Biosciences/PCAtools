@@ -37,19 +37,6 @@
 #'   'none').
 #' @param legendLabSize Size of plot legend text.
 #' @param legendIconSize Size of plot legend icons / symbols.
-#' @param encircle Logical, indicating whether to draw a polygon around
-#'   the groups specified by 'colby'.
-#' @param encircleFill Logical, if 'encircle == TRUE', this determines
-#'   whether to fill the encircled region or not.
-#' @param encircleFillKey Vector of name-value pairs relating to value passed to
-#'   'encircleFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
-#'   is controlled by whatever has already been used for 'colby' / 'colkey'.
-#' @param encircleAlpha Alpha for purposes of controlling colour transparency of
-#'   the encircled region. Used when 'encircle == TRUE'.
-#' @param encircleLineSize Line width of the encircled line when
-#'   'encircle == TRUE'.
-#' @param encircleLineCol Colour of the encircled line when
-#'   'encircle == TRUE'.
 #' @param xlim Limits of the x-axis.
 #' @param ylim Limits of the y-axis.
 #' @param lab A vector containing labels to add to the plot.
@@ -155,12 +142,6 @@ pairsplot <- function(
     legendPosition = 'none',
     legendLabSize = 6,
     legendIconSize = 1.5,
-    encircle = FALSE,
-    encircleFill = TRUE,
-    encircleFillKey = NULL,
-    encircleAlpha = 1/4,
-    encircleLineSize = 0.25,
-    encircleLineCol = NULL,
     xlim = NULL,
     ylim = NULL,
     lab = NULL,
@@ -263,12 +244,6 @@ pairsplot <- function(
                                     legendPosition = legendPosition,
                                     legendLabSize = legendLabSize,
                                     legendIconSize = legendIconSize,
-                                    encircle = encircle,
-                                    encircleFill = encircleFill,
-                                    encircleFillKey = encircleFillKey,
-                                    encircleAlpha = encircleAlpha,
-                                    encircleLineSize = encircleLineSize,
-                                    encircleLineCol = encircleLineCol,
                                     drawConnectors = drawConnectors,
                                     widthConnectors = widthConnectors,
                                     colConnectors = colConnectors,

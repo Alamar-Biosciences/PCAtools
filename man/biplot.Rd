@@ -34,13 +34,7 @@ biplot(
   legendLabSize = 12,
   legendTitleSize = 14,
   legendIconSize = 5,
-  encircle = FALSE,
-  encircleFill = TRUE,
-  encircleFillKey = NULL,
-  encircleAlpha = 1/4,
-  encircleLineSize = 0.25,
-  encircleLineCol = NULL,
-  ellipse = FALSE,
+  ellipse = TRUE,
   ellipseType = "t",
   ellipseLevel = 0.95,
   ellipseSegments = 51,
@@ -188,25 +182,6 @@ by 'shape'.}
 \item{legendTitleSize}{Size of plot legend title text.}
 
 \item{legendIconSize}{Size of plot legend icons / symbols.}
-
-\item{encircle}{Logical, indicating whether to draw a polygon around
-the groups specified by 'colby'.}
-
-\item{encircleFill}{Logical, if 'encircle == TRUE', this determines
-whether to fill the encircled region or not.}
-
-\item{encircleFillKey}{Vector of name-value pairs relating to value passed to
-'encircleFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
-is controlled by whatever has already been used for 'colby' / 'colkey'.}
-
-\item{encircleAlpha}{Alpha for purposes of controlling colour transparency of
-the encircled region. Used when 'encircle == TRUE'.}
-
-\item{encircleLineSize}{Line width of the encircled line when
-'encircle == TRUE'.}
-
-\item{encircleLineCol}{Colour of the encircled line when
-'encircle == TRUE'.}
 
 \item{ellipse}{Logical, indicating whether to draw a data ellipse around
 the groups specified by 'colby'.}
