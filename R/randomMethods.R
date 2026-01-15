@@ -28,7 +28,7 @@
 #' @author Aaron Lun
 #'
 #' @seealso
-#' \code{\link{chooseGavishDonoho}}, \code{\link{parallelPCA}} and \code{\link{findElbowPoint}}, 
+#' \code{\link{chooseGavishDonoho}} and \code{\link{findElbowPoint}},
 #' for other approaches to choosing the number of PCs.
 #'
 #' @examples
@@ -82,7 +82,7 @@ chooseMarchenkoPastur <- function(x, .dim=dim(x), var.explained, noise) {
 #' chooseGavishDonoho(obs, var.explained=pcs$sdev^2, noise=4)
 #'
 #' @seealso
-#' \code{\link{chooseMarchenkoPastur}}, \code{\link{parallelPCA}} and \code{\link{findElbowPoint}}, 
+#' \code{\link{chooseMarchenkoPastur}} and \code{\link{findElbowPoint}},
 #' for other approaches to choosing the number of PCs.
 #' 
 #' @export

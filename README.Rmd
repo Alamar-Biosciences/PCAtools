@@ -20,7 +20,7 @@ vignette: >
 
 Principal Component Analysis (PCA) is a very powerful technique that has wide applicability in data science, bioinformatics, and further afield. It was initially developed to analyse large volumes of data in order to tease out the differences/relationships between the logical entities being analysed. It extracts the fundamental structure of the data without the need to build any model to represent it. This 'summary' of the data is arrived at through a process of reduction that can transform the large number of variables into a lesser number that are uncorrelated (i.e. the ‘principal components'), while at the same time being capable of easy interpretation on the original data [@PCAtools] [@BligheK].
 
-*PCAtools* provides functions for data exploration via PCA, and allows the user to generate publication-ready figures. PCA is performed via *BiocSingular* [@Lun] - users can also identify optimal number of principal components via different metrics, such as elbow method and Horn's parallel analysis [@Horn] [@Buja], which has relevance for data reduction in single-cell RNA-seq (scRNA-seq) and high dimensional mass cytometry data.
+*PCAtools* provides functions for data exploration via PCA, and allows the user to generate publication-ready figures. PCA is performed via *BiocSingular* [@Lun] - users can also identify optimal number of principal components via different metrics, such as the elbow method, which has relevance for data reduction in single-cell RNA-seq (scRNA-seq) and high dimensional mass cytometry data.
 
 ```{r VROOM_CONNECTION_SIZE, eval = TRUE, echo = FALSE}
 
@@ -315,23 +315,13 @@ the *hgu133a.db* Bioconductor package:
 A scree plot on its own just shows the accumulative proportion of explained
 variation, but how can we determine the optimum number of PCs to retain?
 
-*PCAtools* provides four metrics for this purpose:
+*PCAtools* provides three metrics for this purpose:
 
 * Elbow method (`findElbowPoint()`)
-* Horn's parallel analysis [@Horn] [@Buja] (`parallelPCA()`)
 * Marchenko-Pastur limit (`chooseMarchenkoPastur()`)
 * Gavish-Donoho method (`chooseGavishDonoho()`)
 
-Let's perform Horn's parallel analysis first:
-
-```{r, warning = FALSE}
-
-  horn <- parallelPCA(mat)
-  horn$n
-
-```
-
-Now the elbow method:
+Let's use the elbow method:
 
 ```{r}
 
@@ -340,11 +330,10 @@ Now the elbow method:
 
 ```
 
-In most cases, the identified values will disagree. This is because finding the
-correct number of PCs is a difficult task and is akin to finding the 'correct'
-number of clusters in a dataset - there is no correct answer.
+Finding the correct number of PCs is a difficult task and is akin to finding the 'correct'
+number of clusters in a dataset - there is no single correct answer.
 
-Taking these values, we can produce a new scree plot and mark these:
+Taking this value, we can produce a new scree plot and mark it:
 
 ```{r ex7, fig.height = 7, fig.width = 9, fig.cap = 'Figure 7: Advanced scree plot illustrating optimum number of PCs'}
 
@@ -352,10 +341,8 @@ Taking these values, we can produce a new scree plot and mark these:
 
   screeplot(p,
     components = getComponents(p, 1:20),
-    vline = c(horn$n, elbow)) +
+    vline = elbow) +
 
-    geom_label(aes(x = horn$n + 1, y = 50,
-      label = 'Horn\'s', vjust = -1, size = 8)) +
     geom_label(aes(x = elbow + 1, y = 50,
       label = 'Elbow method', vjust = -1, size = 8))
 
@@ -390,35 +377,6 @@ In a bi-plot, we can shade the points by different groups and add many more feat
     colby = 'ER',
     hline = 0, vline = 0,
     legendPosition = 'right')
-
-```
-
-
-### Supply custom colours and encircle variables by group
-
-The encircle functionality literally draws a polygon around
-each group specified by *colby*. It says nothing about any statistic
-pertaining to each group.
-
-```{r ex9, message = FALSE, fig.height = 7.5, fig.width = 7, fig.cap = 'Figure 9: Supply custom colours and encircle variables by group'}
-
-  biplot(p,
-    colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
-    colLegendTitle = 'ER-\nstatus',
-    # encircle config
-      encircle = TRUE,
-      encircleFill = TRUE,
-    hline = 0, vline = c(-25, 0, 25),
-    legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
-
-  biplot(p,
-    colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
-    colLegendTitle = 'ER-\nstatus',
-    # encircle config
-      encircle = TRUE, encircleFill = FALSE,
-      encircleAlpha = 1, encircleLineSize = 5,
-    hline = 0, vline = c(-25, 0, 25),
-    legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
 
 ```
 

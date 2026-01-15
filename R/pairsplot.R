@@ -37,19 +37,6 @@
 #'   'none').
 #' @param legendLabSize Size of plot legend text.
 #' @param legendIconSize Size of plot legend icons / symbols.
-#' @param encircle Logical, indicating whether to draw a polygon around
-#'   the groups specified by 'colby'.
-#' @param encircleFill Logical, if 'encircle == TRUE', this determines
-#'   whether to fill the encircled region or not.
-#' @param encircleFillKey Vector of name-value pairs relating to value passed to
-#'   'encircleFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
-#'   is controlled by whatever has already been used for 'colby' / 'colkey'.
-#' @param encircleAlpha Alpha for purposes of controlling colour transparency of
-#'   the encircled region. Used when 'encircle == TRUE'.
-#' @param encircleLineSize Line width of the encircled line when
-#'   'encircle == TRUE'.
-#' @param encircleLineCol Colour of the encircled line when
-#'   'encircle == TRUE'.
 #' @param xlim Limits of the x-axis.
 #' @param ylim Limits of the y-axis.
 #' @param lab A vector containing labels to add to the plot.
@@ -90,6 +77,24 @@
 #'   gridlines.
 #' @param borderWidth Width of the border on the x and y axes.
 #' @param borderColour Colour of the border on the x and y axes.
+#' @param ellipse Logical, indicating whether to draw a data ellipse around
+#'   the groups specified by 'colby'.
+#' @param ellipseType The type of ellipse. "t" assumes a multivariate 
+#'   t-distribution, "norm" assumes a multivariate normal distribution, 
+#'   "euclid" draws a circle with radius equal to level.
+#' @param ellipseLevel The level at which to draw an ellipse (default 0.95 
+#'   for 95% confidence region).
+#' @param ellipseSegments The number of segments to be used in drawing the 
+#'   ellipse (default 51).
+#' @param ellipseFill Logical, if 'ellipse == TRUE', this determines
+#'   whether to fill the ellipse region or not.
+#' @param ellipseFillKey Vector of name-value pairs relating to value passed to
+#'   'ellipseFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
+#'   is controlled by whatever has already been used for 'colby' / 'colkey'.
+#' @param ellipseAlpha Alpha for purposes of controlling colour transparency of
+#'   the ellipse region. Used when 'ellipse == TRUE'.
+#' @param ellipseLineSize Line width of the ellipse line when 'ellipse == TRUE'.
+#' @param ellipseLineCol Colour of the ellipse line when 'ellipse == TRUE'.
 #' @param returnPlot Logical, indicating whether or not to return the plot
 #'   object.
 #'
@@ -155,12 +160,6 @@ pairsplot <- function(
     legendPosition = 'none',
     legendLabSize = 6,
     legendIconSize = 1.5,
-    encircle = FALSE,
-    encircleFill = TRUE,
-    encircleFillKey = NULL,
-    encircleAlpha = 1/4,
-    encircleLineSize = 0.25,
-    encircleLineCol = NULL,
     xlim = NULL,
     ylim = NULL,
     lab = NULL,
@@ -192,6 +191,15 @@ pairsplot <- function(
     gridlines.minor = TRUE,
     borderWidth = 0.8,
     borderColour = 'black',
+    ellipse = FALSE,
+    ellipseType = 't',
+    ellipseLevel = 0.95,
+    ellipseSegments = 51,
+    ellipseFill = TRUE,
+    ellipseFillKey = NULL,
+    ellipseAlpha = 1/4,
+    ellipseLineSize = 0.25,
+    ellipseLineCol = NULL,
     returnPlot = TRUE)
 {
   # biplots is a list that will be populated with biplot()
@@ -263,15 +271,18 @@ pairsplot <- function(
                                     legendPosition = legendPosition,
                                     legendLabSize = legendLabSize,
                                     legendIconSize = legendIconSize,
-                                    encircle = encircle,
-                                    encircleFill = encircleFill,
-                                    encircleFillKey = encircleFillKey,
-                                    encircleAlpha = encircleAlpha,
-                                    encircleLineSize = encircleLineSize,
-                                    encircleLineCol = encircleLineCol,
                                     drawConnectors = drawConnectors,
                                     widthConnectors = widthConnectors,
                                     colConnectors = colConnectors,
+                                    ellipse = ellipse,
+                                    ellipseType = ellipseType,
+                                    ellipseLevel = ellipseLevel,
+                                    ellipseSegments = ellipseSegments,
+                                    ellipseFill = ellipseFill,
+                                    ellipseFillKey = ellipseFillKey,
+                                    ellipseAlpha = ellipseAlpha,
+                                    ellipseLineSize = ellipseLineSize,
+                                    ellipseLineCol = ellipseLineCol,
                                     hline = hline,
                                     hlineType = hlineType,
                                     hlineCol = hlineCol,

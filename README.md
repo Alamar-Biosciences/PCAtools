@@ -324,23 +324,13 @@ A scree plot on its own just shows the accumulative proportion of
 explained variation, but how can we determine the optimum number of PCs
 to retain?
 
-*PCAtools* provides four metrics for this purpose:
+*PCAtools* provides three metrics for this purpose:
 
   - Elbow method
-  - Horn’s parallel analysis (Horn 1965) (Buja and Eyuboglu 1992).
   - Marchenko-Pastur limit
   - Gavish-Donoho method
 
-Let’s perform Horn’s parallel analysis first:
-
-``` r
-  horn <- parallelPCA(mat)
-  horn$n
-```
-
-    ## [1] 11
-
-Now the elbow method:
+Let's use the elbow method:
 
 ``` r
   elbow <- findElbowPoint(p$variance)
@@ -350,22 +340,19 @@ Now the elbow method:
     ## PC8 
     ##   8
 
-In most cases, the identified values will disagree. This is because
-finding the correct number of PCs is a difficult task and is akin to
-finding the ‘correct’ number of clusters in a dataset - there is no
-correct answer.
+Finding the correct number of PCs is a difficult task and is akin to
+finding the 'correct' number of clusters in a dataset - there is no
+single correct answer.
 
-Taking these values, we can produce a new scree plot and mark these:
+Taking this value, we can produce a new scree plot and mark it:
 
 ``` r
   library(ggplot2)
 
   screeplot(p,
     components = getComponents(p, 1:20),
-    vline = c(horn$n, elbow)) +
+    vline = elbow) +
 
-    geom_label(aes(x = horn$n + 1, y = 50,
-      label = 'Horn\'s', vjust = -1, size = 8)) +
     geom_label(aes(x = elbow + 1, y = 50,
       label = 'Elbow method', vjust = -1, size = 8))
 ```
@@ -410,46 +397,6 @@ features.
 
 ![Figure 8: Colour by a metadata factor, use a custom label, add lines
 through origin, and add legend](README_files/figure-gfm/ex8-1.png)
-
-### Supply custom colours and encircle variables by group
-
-The encircle functionality literally draws a polygon around each group
-specified by *colby*. It says nothing about any statistic pertaining to
-each group.
-
-``` r
-  biplot(p,
-    colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
-    colLegendTitle = 'ER-\nstatus',
-    # encircle config
-      encircle = TRUE,
-      encircleFill = TRUE,
-    hline = 0, vline = c(-25, 0, 25),
-    legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
-```
-
-    ## Warning: ggrepel: 26 unlabeled data points (too many overlaps). Consider
-    ## increasing max.overlaps
-
-![Figure 9: Supply custom colours and encircle variables by
-group](README_files/figure-gfm/ex9-1.png)
-
-``` r
-  biplot(p,
-    colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
-    colLegendTitle = 'ER-\nstatus',
-    # encircle config
-      encircle = TRUE, encircleFill = FALSE,
-      encircleAlpha = 1, encircleLineSize = 5,
-    hline = 0, vline = c(-25, 0, 25),
-    legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
-```
-
-    ## Warning: ggrepel: 26 unlabeled data points (too many overlaps). Consider
-    ## increasing max.overlaps
-
-![Figure 9: Supply custom colours and encircle variables by
-group](README_files/figure-gfm/ex9-2.png)
 
 ### Stat ellipses
 

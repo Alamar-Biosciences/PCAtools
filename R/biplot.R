@@ -59,19 +59,6 @@
 #' @param legendLabSize Size of plot legend text.
 #' @param legendTitleSize Size of plot legend title text.
 #' @param legendIconSize Size of plot legend icons / symbols.
-#' @param encircle Logical, indicating whether to draw a polygon around
-#'   the groups specified by 'colby'.
-#' @param encircleFill Logical, if 'encircle == TRUE', this determines
-#'   whether to fill the encircled region or not.
-#' @param encircleFillKey Vector of name-value pairs relating to value passed to
-#'   'encircleFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
-#'   is controlled by whatever has already been used for 'colby' / 'colkey'.
-#' @param encircleAlpha Alpha for purposes of controlling colour transparency of
-#'   the encircled region. Used when 'encircle == TRUE'.
-#' @param encircleLineSize Line width of the encircled line when
-#'   'encircle == TRUE'.
-#' @param encircleLineCol Colour of the encircled line when
-#'   'encircle == TRUE'.
 #' @param ellipse Logical, indicating whether to draw a data ellipse around
 #'   the groups specified by 'colby'.
 #' @param ellipseType [paraphrased from
@@ -230,13 +217,7 @@ biplot <- function(
   legendLabSize = 12,
   legendTitleSize = 14,
   legendIconSize = 5.0,
-  encircle = FALSE,
-  encircleFill = TRUE,
-  encircleFillKey = NULL,
-  encircleAlpha = 1/4,
-  encircleLineSize = 0.25,
-  encircleLineCol = NULL,
-  ellipse = FALSE,
+  ellipse = TRUE,
   ellipseType = 't',
   ellipseLevel = 0.95,
   ellipseSegments = 51,
@@ -605,65 +586,6 @@ biplot <- function(
             aes(label = lab),
             size = labSize,
             check_overlap = TRUE)
-      }
-    }
-  }
-
-  # encircle
-  if (encircle) {
-    if (encircleFill) {
-      if (is.null(encircleLineCol)) {
-        plot <- plot +
-          ggalt::geom_encircle(
-            aes(group = col,
-              fill = col,
-              colour = col),
-            alpha = encircleAlpha,
-            size = encircleLineSize,
-            show.legend = FALSE,
-            na.rm = TRUE)
-      } else {
-        plot <- plot +
-          ggalt::geom_encircle(
-            aes(group = col,
-              fill = col),
-            colour = encircleLineCol,
-            alpha = encircleAlpha,
-            size = encircleLineSize,
-            show.legend = FALSE,
-            na.rm = TRUE)
-      }
-    } else {
-      if (is.null(encircleLineCol)) {
-        plot <- plot +
-          ggalt::geom_encircle(
-            aes(group = col,
-              colour = col),
-            fill = NA,
-            alpha = encircleAlpha,
-            size = encircleLineSize,
-            show.legend = FALSE,
-            na.rm = TRUE)
-      } else {
-        plot <- plot +
-          ggalt::geom_encircle(
-            aes(group = col),
-            colour = encircleLineCol,
-            fill = NA,
-            alpha = encircleAlpha,
-            size = encircleLineSize,
-            show.legend = FALSE,
-            na.rm = TRUE)
-      }
-    }
-
-    if (encircleFill) {
-      if (is.null(encircleFillKey)) {
-        if (!is.null(colkey)) {
-          plot <- plot + scale_fill_manual(values = colkey)
-        }
-      } else {
-          plot <- plot + scale_fill_manual(values = encircleFillKey)
       }
     }
   }

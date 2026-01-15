@@ -24,12 +24,6 @@ pairsplot(
   legendPosition = "none",
   legendLabSize = 6,
   legendIconSize = 1.5,
-  encircle = FALSE,
-  encircleFill = TRUE,
-  encircleFillKey = NULL,
-  encircleAlpha = 1/4,
-  encircleLineSize = 0.25,
-  encircleLineCol = NULL,
   xlim = NULL,
   ylim = NULL,
   lab = NULL,
@@ -61,6 +55,15 @@ pairsplot(
   gridlines.minor = TRUE,
   borderWidth = 0.8,
   borderColour = "black",
+  ellipse = FALSE,
+  ellipseType = "t",
+  ellipseLevel = 0.95,
+  ellipseSegments = 51,
+  ellipseFill = TRUE,
+  ellipseFillKey = NULL,
+  ellipseAlpha = 1/4,
+  ellipseLineSize = 0.25,
+  ellipseLineCol = NULL,
   returnPlot = TRUE
 )
 }
@@ -120,25 +123,6 @@ grouping/categorical variable.}
 \item{legendLabSize}{Size of plot legend text.}
 
 \item{legendIconSize}{Size of plot legend icons / symbols.}
-
-\item{encircle}{Logical, indicating whether to draw a polygon around
-the groups specified by 'colby'.}
-
-\item{encircleFill}{Logical, if 'encircle == TRUE', this determines
-whether to fill the encircled region or not.}
-
-\item{encircleFillKey}{Vector of name-value pairs relating to value passed to
-'encircleFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
-is controlled by whatever has already been used for 'colby' / 'colkey'.}
-
-\item{encircleAlpha}{Alpha for purposes of controlling colour transparency of
-the encircled region. Used when 'encircle == TRUE'.}
-
-\item{encircleLineSize}{Line width of the encircled line when
-'encircle == TRUE'.}
-
-\item{encircleLineCol}{Colour of the encircled line when
-'encircle == TRUE'.}
 
 \item{xlim}{Limits of the x-axis.}
 
@@ -210,6 +194,33 @@ gridlines.}
 \item{borderWidth}{Width of the border on the x and y axes.}
 
 \item{borderColour}{Colour of the border on the x and y axes.}
+
+\item{ellipse}{Logical, indicating whether to draw a data ellipse around
+the groups specified by 'colby'.}
+
+\item{ellipseType}{The type of ellipse. "t" assumes a multivariate 
+t-distribution, "norm" assumes a multivariate normal distribution, 
+"euclid" draws a circle with radius equal to level.}
+
+\item{ellipseLevel}{The level at which to draw an ellipse (default 0.95 
+for 95% confidence region).}
+
+\item{ellipseSegments}{The number of segments to be used in drawing the 
+ellipse (default 51).}
+
+\item{ellipseFill}{Logical, if 'ellipse == TRUE', this determines
+whether to fill the ellipse region or not.}
+
+\item{ellipseFillKey}{Vector of name-value pairs relating to value passed to
+'ellipseFill', e.g., c(A='forestgreen', B='gold'). If NULL, the fill
+is controlled by whatever has already been used for 'colby' / 'colkey'.}
+
+\item{ellipseAlpha}{Alpha for purposes of controlling colour transparency of
+the ellipse region. Used when 'ellipse == TRUE'.}
+
+\item{ellipseLineSize}{Line width of the ellipse line when 'ellipse == TRUE'.}
+
+\item{ellipseLineCol}{Colour of the ellipse line when 'ellipse == TRUE'.}
 
 \item{returnPlot}{Logical, indicating whether or not to return the plot
 object.}

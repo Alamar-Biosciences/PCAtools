@@ -48,7 +48,7 @@ chooseMarchenkoPastur(obs, var.explained=pcs$sdev^2, noise=4)
 
 }
 \seealso{
-\code{\link{chooseGavishDonoho}}, \code{\link{parallelPCA}} and \code{\link{findElbowPoint}}, 
+\code{\link{chooseGavishDonoho}} and \code{\link{findElbowPoint}},
 for other approaches to choosing the number of PCs.
 }
 \author{
