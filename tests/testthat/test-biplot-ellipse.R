@@ -14,8 +14,12 @@ test_that("biplot ellipse is not split by axis limits", {
     p <- biplot(pc, colby = "grp", ellipse = TRUE, ellipseType = "norm",
         xlim = c(-20, 20), ylim = c(-12, 12))
 
-    built <- ggplot2::ggplot_build(p)$data
-    polys <- Filter(function(d) "group" %in% names(d) && nrow(d) > 100, built)
-    expect_true(length(polys) > 0)
-    for (d in polys) expect_false(anyNA(d$x))
+    built <- suppressWarnings(ggplot2::ggplot_build(p))
+    is_poly <- vapply(built$plot$layers,
+        function(l) inherits(l$geom, "GeomPolygon"), logical(1))
+    polys <- built$data[is_poly]
+    expect_length(polys, 1)
+    expect_equal(length(unique(polys[[1]]$group)), 2)
+    expect_false(anyNA(polys[[1]]$x))
+    expect_false(anyNA(polys[[1]]$y))
 })
