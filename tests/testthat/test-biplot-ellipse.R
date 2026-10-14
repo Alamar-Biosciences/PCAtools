@@ -23,3 +23,21 @@ test_that("biplot ellipse is not split by axis limits", {
     expect_false(anyNA(polys[[1]]$x))
     expect_false(anyNA(polys[[1]]$y))
 })
+
+test_that("biplot limits survive a later coord and clip at the panel", {
+    set.seed(2)
+    m <- matrix(rnorm(2 * 50, sd = 4), nrow = 2,
+        dimnames = list(c("g1", "g2"), paste0("s", 1:50)))
+    pc <- pca(m, center = FALSE)
+    p <- biplot(pc, lab = NULL, xlim = c(-5, 5), ylim = c(-5, 5))
+    expect_equal(p$coordinates$clip, "on")
+
+    rng <- function(p) {
+        pp <- suppressWarnings(ggplot2::ggplot_build(p))$layout$panel_params[[1]]
+        list(x = pp$x.range, y = pp$y.range)
+    }
+    expect_equal(rng(p)$x, c(-5.5, 5.5))
+    expect_equal(rng(p + ggplot2::coord_fixed())$x, c(-5.5, 5.5))
+    expect_equal(rng(p + ggplot2::coord_fixed())$y, c(-5.5, 5.5))
+    expect_equal(rng(p + ggplot2::coord_flip())$y, c(-5.5, 5.5))
+})

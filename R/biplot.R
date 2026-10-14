@@ -659,9 +659,17 @@ biplot <- function(
     }
   }
 
-  # Zoom with coord_cartesian, not scale limits: a scale limit turns ellipse
-  # vertices outside the range into NA, which splits the polygon into pieces.
-  plot <- plot + coord_cartesian(xlim = xlim, ylim = ylim,
+  # Keep out-of-range values (oob) instead of the default censoring, which turns
+  # ellipse vertices outside the limits into NA and splits the polygon. The
+  # limits stay on the scales so a later `+ coord_flip()`/`coord_fixed()` keeps them.
+  oob_keep <- function(x, range = c(0, 1), only.finite = TRUE) x
+  if (!is.null(xlim)) {
+    plot <- plot + scale_x_continuous(limits = xlim, oob = oob_keep)
+  }
+  if (!is.null(ylim)) {
+    plot <- plot + scale_y_continuous(limits = ylim, oob = oob_keep)
+  }
+  plot <- plot + coord_cartesian(
     clip = if (is.null(xlim) && is.null(ylim)) 'off' else 'on')
 
   # return plot?
