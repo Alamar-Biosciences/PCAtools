@@ -471,12 +471,6 @@ biplot <- function(
 
   # add elements to the plot for xy labeling and axis limits
   plot <- plot + xlab(xlab) + ylab(ylab)
-  if (!is.null(xlim)) {
-    plot <- plot + xlim(xlim[1], xlim[2])
-  }
-  if (!is.null(ylim)) {
-    plot <- plot + ylim(ylim[1], ylim[2])
-  }
 
   # add elements to the plot for title, subtitle, caption, and legend titles
   plot <- plot + labs(title = title, 
@@ -665,7 +659,10 @@ biplot <- function(
     }
   }
 
-  plot <- plot + coord_cartesian(clip = 'off')
+  # Zoom with coord_cartesian, not scale limits: a scale limit turns ellipse
+  # vertices outside the range into NA, which splits the polygon into pieces.
+  plot <- plot + coord_cartesian(xlim = xlim, ylim = ylim,
+    clip = if (is.null(xlim) && is.null(ylim)) 'off' else 'on')
 
   # return plot?
   if (returnPlot) {
