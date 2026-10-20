@@ -215,9 +215,11 @@ the ellipse region. Used when 'ellipse == TRUE'.}
 
 \item{ellipseLineCol}{Colour of the ellipse line when 'ellipse == TRUE'.}
 
-\item{xlim}{Limits of the x-axis.}
+\item{xlim}{Limits of the x-axis. This zooms the plot; samples outside the
+limits are still used to fit ellipses.}
 
-\item{ylim}{Limits of the y-axis.}
+\item{ylim}{Limits of the y-axis. This zooms the plot; samples outside the
+limits are still used to fit ellipses.}
 
 \item{lab}{A vector containing labels to add to the plot.}
 

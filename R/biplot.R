@@ -83,8 +83,10 @@
 #'   the ellipse region. Used when 'ellipse == TRUE'.
 #' @param ellipseLineSize Line width of the ellipse line when 'ellipse == TRUE'.
 #' @param ellipseLineCol Colour of the ellipse line when 'ellipse == TRUE'.
-#' @param xlim Limits of the x-axis.
-#' @param ylim Limits of the y-axis.
+#' @param xlim Limits of the x-axis. This zooms the plot; samples outside the
+#'   limits are still used to fit ellipses.
+#' @param ylim Limits of the y-axis. This zooms the plot; samples outside the
+#'   limits are still used to fit ellipses.
 #' @param lab A vector containing labels to add to the plot. 
 #' @param labSize Size of labels.
 #' @param boxedLabels Logical, draw text labels in boxes.
@@ -471,12 +473,6 @@ biplot <- function(
 
   # add elements to the plot for xy labeling and axis limits
   plot <- plot + xlab(xlab) + ylab(ylab)
-  if (!is.null(xlim)) {
-    plot <- plot + xlim(xlim[1], xlim[2])
-  }
-  if (!is.null(ylim)) {
-    plot <- plot + ylim(ylim[1], ylim[2])
-  }
 
   # add elements to the plot for title, subtitle, caption, and legend titles
   plot <- plot + labs(title = title, 
@@ -665,7 +661,23 @@ biplot <- function(
     }
   }
 
-  plot <- plot + coord_cartesian(clip = 'off')
+  # Keep out-of-range values (oob) instead of the default censoring, which turns
+  # ellipse vertices outside the limits into NA and splits the polygon. The
+  # limits stay on the scales so a later `+ coord_flip()`/`coord_fixed()` keeps them.
+  oob_keep <- function(x, range = c(0, 1), only.finite = TRUE) x
+  # xlim()/ylim() build the scale, so reversed limits (c(20, -10)) still reverse the axis.
+  if (!is.null(xlim)) {
+    sc <- xlim(xlim[1], xlim[2])
+    sc$oob <- oob_keep
+    plot <- plot + sc
+  }
+  if (!is.null(ylim)) {
+    sc <- ylim(ylim[1], ylim[2])
+    sc$oob <- oob_keep
+    plot <- plot + sc
+  }
+  plot <- plot + coord_cartesian(
+    clip = if (is.null(xlim) && is.null(ylim)) 'off' else 'on')
 
   # return plot?
   if (returnPlot) {
