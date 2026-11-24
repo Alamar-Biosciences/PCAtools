@@ -102,7 +102,6 @@ pca <- function(
   removeVar = NULL,
   transposed = FALSE)
 {
-  # avoid attempting to coerce S4 matrices into full matrices.
   if (is.data.frame(mat)) {
     mat <- as.matrix(mat)
   }
@@ -123,6 +122,13 @@ pca <- function(
   # whose 1.10.x native initializer unbalances R's protect stack.
   mat <- as.matrix(mat)
   centered <- if (center) sweep(mat, 2, colMeans(mat)) else mat
+  # colMeans() of a constant column can be off by one ulp where long double
+  # is double (macOS arm64), which scale = TRUE would turn into a false PC.
+  if (center) {
+    constant <- vapply(seq_len(ncol(mat)),
+      function(j) isTRUE(all(mat[, j] == mat[1, j])), logical(1))
+    centered[, constant] <- 0
+  }
   vars <- colSums(centered ^ 2) / (nrow(mat) - 1)
 
   if (!is.null(removeVar)) {

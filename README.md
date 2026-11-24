@@ -19,7 +19,7 @@ of easy interpretation on the original data (Blighe and Lun 2019)
 
 *PCAtools* provides functions for data exploration via PCA, and allows
 the user to generate publication-ready figures. PCA is performed via
-*BiocSingular* (Lun 2019) - users can also identify optimal number of
+an exact SVD (base::svd) - users can also identify optimal number of
 principal components via different metrics, such as elbow method and
 Horn’s parallel analysis (Horn 1965) (Buja and Eyuboglu 1992), which has
 relevance for data reduction in single-cell RNA-seq (scRNA-seq) and high
