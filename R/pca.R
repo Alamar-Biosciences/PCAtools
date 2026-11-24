@@ -10,15 +10,12 @@
 #'   'center' parameter.
 #' @param scale Scale the data? Same as prcomp() 'scale' parameter.
 #' @param rank An integer scalar specifying the number of PCs to retain.
-#'   OPTIONAL for an exact SVD, whereby it defaults to all PCs. Otherwise
-#'   REQUIRED for approximate SVD methods.
+#'   OPTIONAL; defaults to all PCs.
 #' @param removeVar Remove this \% of variables based on low variance.
 #' @param transposed Is \code{mat} transposed? DEFAULT = FALSE. If set to TRUE,
 #'   samples are in the rows and variables are in the columns.
-#' @param BSPARAM A \linkS4class{BiocSingularParam} object specifying the 
-#'   algorithm to use for the SVD. Defaults to an exact SVD.
 #'
-#' @details Principal Component Analysis (PCA) is a very powerful technique that has wide applicability in data science, bioinformatics, and further afield. It was initially developed to analyse large volumes of data in order to tease out the differences/relationships between the logical entities being analysed. It extracts the fundamental structure of the data without the need to build any model to represent it. This 'summary' of the data is arrived at through a process of reduction that can transform the large number of variables into a lesser number that are uncorrelated (i.e. the 'principal components'), whilst at the same time being capable of easy interpretation on the original data. PCAtools provides functions for data exploration via PCA, and allows the user to generate publication-ready figures. PCA is performed via BiocSingular - users can also identify optimal number of principal components via different metrics, such as the elbow method, which has relevance for data reduction in single-cell RNA-seq (scRNA-seq) and high dimensional mass cytometry data.
+#' @details Principal Component Analysis (PCA) is a very powerful technique that has wide applicability in data science, bioinformatics, and further afield. It was initially developed to analyse large volumes of data in order to tease out the differences/relationships between the logical entities being analysed. It extracts the fundamental structure of the data without the need to build any model to represent it. This 'summary' of the data is arrived at through a process of reduction that can transform the large number of variables into a lesser number that are uncorrelated (i.e. the 'principal components'), whilst at the same time being capable of easy interpretation on the original data. PCAtools provides functions for data exploration via PCA, and allows the user to generate publication-ready figures. PCA is performed via an exact SVD (base::svd) - users can also identify optimal number of principal components via different metrics, such as the elbow method, which has relevance for data reduction in single-cell RNA-seq (scRNA-seq) and high dimensional mass cytometry data.
 #'
 #' @return A \code{\link{pca}} object, containing:
 #'   \itemize{
@@ -94,10 +91,6 @@
 #'     metavars = c('ESR', 'CRP'))
 #'
 #' @import Matrix
-#' @importFrom DelayedArray DelayedArray
-#' @importFrom BiocSingular runPCA
-#' @importFrom BiocSingular ExactParam
-#' @importFrom DelayedMatrixStats colVars
 #'
 #' @export
 pca <- function(
@@ -107,10 +100,8 @@ pca <- function(
   scale = FALSE,
   rank = NULL, 
   removeVar = NULL,
-  transposed = FALSE,
-  BSPARAM = ExactParam())
+  transposed = FALSE)
 {
-  # avoid attempting to coerce S4 matrices into full matrices.
   if (is.data.frame(mat)) {
     mat <- as.matrix(mat)
   }
@@ -127,8 +118,18 @@ pca <- function(
   }
 
   # remove lower portion of variables based on variation
-  .center <- if (center) NULL else 0
-  vars <- colVars(DelayedArray(mat), center=.center)
+  # BiocSingular and DelayedMatrixStats are not used: both load SparseArray,
+  # whose 1.10.x native initializer unbalances R's protect stack.
+  mat <- as.matrix(mat)
+  centered <- if (center) sweep(mat, 2, colMeans(mat)) else mat
+  # colMeans() of a constant column can be off by one ulp where long double
+  # is double (macOS arm64), which scale = TRUE would turn into a false PC.
+  if (center) {
+    constant <- vapply(seq_len(ncol(mat)),
+      function(j) isTRUE(all(mat[, j] == mat[1, j])), logical(1))
+    centered[, constant] <- 0
+  }
+  vars <- colSums(centered ^ 2) / (nrow(mat) - 1)
 
   if (!is.null(removeVar)) {
     message('-- removing the lower ', removeVar * 100,
@@ -136,24 +137,33 @@ pca <- function(
     varorder <- order(vars, decreasing = TRUE)
     keep <- head(varorder, max(1, ncol(mat)*(1-removeVar)))
     mat <- mat[,keep,drop=FALSE]
+    centered <- centered[,keep,drop=FALSE]
     vars <- vars[keep]
   }
 
-  # Setting the default rank to all values if Exact.
   if (is.null(rank)) {
-    if (is(BSPARAM, "ExactParam")) {
-      rank <- min(dim(mat))
-    } else {
-      stop("'rank' must be specified for approximate PCA methods")
-    }
+    rank <- min(dim(mat))
+  } else if (rank > min(dim(mat))) {
+    warning("more singular values/vectors requested than available")
+    rank <- min(dim(mat))
   }
 
-  # perform pca via BiocSingular::runPCA().
-  pcaobj <- runPCA(mat,
-    center = center,
-    scale = scale,
-    rank = rank,
-    BSPARAM = BSPARAM)
+  # Same exact SVD as BiocSingular::runPCA(BSPARAM = ExactParam()):
+  # zero-variance columns are left unscaled, not divided by zero.
+  if (scale) {
+    sds <- sqrt(colSums(centered ^ 2) / (nrow(mat) - 1))
+    sds[sds == 0] <- 1
+    centered <- sweep(centered, 2, sds, "/")
+  }
+  svdobj <- svd(centered, nu = rank, nv = rank)
+  d <- head(svdobj$d, rank)
+  pcnames <- paste0("PC", seq_len(rank))
+  pcaobj <- list(
+    sdev = d / sqrt(nrow(mat) - 1),
+    rotation = matrix(svdobj$v, ncol = rank,
+      dimnames = list(colnames(mat), pcnames)),
+    x = matrix(sweep(svdobj$u, 2, d, "*"), ncol = rank,
+      dimnames = list(rownames(mat), pcnames)))
 
   # Determine the proportion of variance of each component
   # Proportion of variance equals (PC stdev^2) / (total variance)

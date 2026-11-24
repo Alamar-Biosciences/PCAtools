@@ -22,7 +22,7 @@ test_that("pca settings work as expected", {
 })
 
 test_that("removal of low-variance genes works", {
-    v <- DelayedMatrixStats::rowVars(lcounts)
+    v <- apply(lcounts, 1, var)
     keep <- order(v, decreasing=TRUE)[seq_len(nrow(lcounts)/2)]
     ref <- pca(lcounts[keep,])
     alt <- pca(lcounts, removeVar=0.5)
@@ -64,13 +64,30 @@ test_that("percentage of variance calculations are correct", {
     expect_false(isTRUE(all.equal(both, removed)))
 })
 
-test_that("pca works with alternative SVD algorithms", {
-    basic <- pca(lcounts, rank=5)
+test_that("loading PCAtools does not load SparseArray", {
+    # SparseArray 1.10.x leaves entries on R's protect stack when it loads.
+    # The child process can only load an installed build, so check that build.
+    skip_if(requireNamespace("pkgload", quietly=TRUE) &&
+        pkgload::is_dev_package("PCAtools"))
+    lib <- dirname(getNamespaceInfo("PCAtools", "path"))
+    code <- sprintf('loadNamespace("PCAtools", lib.loc="%s"); cat("SparseArray" %%in%% loadedNamespaces())', lib)
+    out <- system2(file.path(R.home("bin"), "Rscript"), c("-e", shQuote(code)),
+        stdout=TRUE)
+    expect_identical(tail(out, 1), "FALSE")
+})
 
-    set.seed(0)
-    irlba <- pca(lcounts, rank=5, BSPARAM=BiocSingular::IrlbaParam())
-    expect_false(identical(irlba, basic))
-    expect_equal(irlba$variance, basic$variance)
+test_that("a constant variable adds no PC when scaled", {
+    x <- lcounts
+    x[1, ] <- 5.123
+    scaled <- pca(x, scale=TRUE)
+    nonnull <- scaled$sdev > 1e-8
+    expect_equal(unname(unlist(scaled$loadings[1, nonnull])), rep(0, sum(nonnull)))
+    expect_equal(sum(scaled$variance), 100 * (nrow(x) - 1) / nrow(x))
+})
+
+test_that("rank above the number of components warns and is capped", {
+    expect_warning(capped <- pca(lcounts, rank=1e6), "more singular values")
+    expect_equal(capped, pca(lcounts))
 })
 
 test_that("pca works with alternative matrix representations", {
